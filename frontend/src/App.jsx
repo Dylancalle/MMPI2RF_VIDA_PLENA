@@ -18,14 +18,37 @@ function App() {
   const [mensajeError, setMensajeError] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
 
+ // 1. Efecto para liberar el código si el paciente cierra la pestaña accidentalmente
+  useEffect(() => {
+    const liberarSesion = () => {
+      // Solo borramos el bloqueo si la pestaña que se cierra es la dueña del test
+      if (sessionStorage.getItem('soyDueñoTest') === 'true') {
+        localStorage.removeItem('testActivo');
+      }
+    };
+    
+    window.addEventListener('beforeunload', liberarSesion);
+    return () => window.removeEventListener('beforeunload', liberarSesion);
+  }, []);
+
+  // 2. Efecto para el control de múltiples pestañas
   useEffect(() => {
     if (paso === 1) {
-      const sesionActiva = localStorage.getItem('testActivo');
-      if (sesionActiva && sesionActiva !== codigo) {
-        mostrarError("Parece que hay otro test abierto en esta computadora. Cierra las otras pestañas.");
+      const testEnUso = localStorage.getItem('testActivo');
+      const soyDueño = sessionStorage.getItem('soyDueñoTest') === 'true';
+
+      if (testEnUso === codigo && !soyDueño) {
+        // Alguien más (otra pestaña) ya está usando ESTE código
+        mostrarError("Este test ya está siendo respondido en otra pestaña.");
+        setPaso(0);
+      } else if (testEnUso && testEnUso !== codigo) {
+        // Alguien más (otra pestaña) está usando un código DIFERENTE
+        mostrarError("Hay otro test abierto en esta computadora. Cierra las otras pestañas.");
         setPaso(0);
       } else {
+        // La vía está libre, o nosotros somos los dueños recargando la página. Reclamamos el test.
         localStorage.setItem('testActivo', codigo);
+        sessionStorage.setItem('soyDueñoTest', 'true');
       }
     }
   }, [paso, codigo]);
