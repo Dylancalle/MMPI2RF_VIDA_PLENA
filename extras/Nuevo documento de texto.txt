@@ -1,5 +1,0 @@
-quiero hacer un sistema que automatice el test mmpi2-rf para una clinica, la clinica tiene un sistemas existente para historiales de pacientes, quieren que el resultado del test se guarde aqui, pero si no esta creado el historial del paciente, que se espere hasta que se cree para resien guardarlo, el sistema de historiales  usa supabase, ellos cuentar  con wifi, el sistema de historial no tengo el codigo y la persona que lo diseño no la conosco solo tengo su numero pero una vez le hable pero no contesto, TENGO QUE TENER LISTO ESTE SISTEMA EL 50%
-
-Stack:
-Backend: Node.js con Express.
-Frontend: React usando Vite. 
