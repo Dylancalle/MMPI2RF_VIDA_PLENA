@@ -14,14 +14,22 @@ const validarCodigo = async (req, res) => {
     if (!codigo) return res.status(400).json({ error: 'Código requerido' });
 
     try {
+        // --- ESTA LÍNEA ES VITAL Y FALTABA EN TU CÓDIGO ---
         const codigoData = await testService.validarCodigo(codigo);
+        // --------------------------------------------------
+
+        const tiempoReal = new Date();
+        const ahoraLocal = new Date(tiempoReal.getTime() - (4 * 60 * 60 * 1000));
+        const fechaExpiracion = new Date(codigoData.fecha_expiracion);
         
-        const ahora = new Date();
-        if (ahora > new Date(codigoData.fecha_expiracion)) {
+        if (ahoraLocal > fechaExpiracion) {
             return res.status(400).json({ error: 'Este código ya ha caducado.' });
         }
 
-        if (ahora.getHours() >= 0 && ahora.getHours() < 6) {
+        // Usamos getUTCHours() porque la fecha ya está artificialmente ajustada a tu país
+        const horaActual = ahoraLocal.getUTCHours();
+        
+        if (horaActual >= 0 && horaActual < 6) {
             return res.status(400).json({ error: 'El test no está habilitado de madrugada por recomendación clínica.' });
         }
 

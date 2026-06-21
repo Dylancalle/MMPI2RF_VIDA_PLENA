@@ -8,12 +8,21 @@ class TestService {
         for (let i = 0; i < 3; i++) codigo += letras.charAt(Math.floor(Math.random() * letras.length));
         for (let i = 0; i < 3; i++) codigo += numeros.charAt(Math.floor(Math.random() * numeros.length));
 
-        const expiracion = new Date();
-        expiracion.setHours(expiracion.getHours() + 24);
+        // --- CORRECCIÓN DE ZONA HORARIA APLICADA AQUÍ (-4 HORAS) ---
+        const ahora = new Date();
+        const ahoraLocal = new Date(ahora.getTime() - (4 * 60 * 60 * 1000));
+        
+        const expiracion = new Date(ahoraLocal.getTime());
+        expiracion.setUTCHours(expiracion.getUTCHours() + 24);
+        // -----------------------------------------------------------
 
         const { data, error } = await supabase
             .from('codigos_acceso')
-            .insert([{ codigo: codigo, fecha_expiracion: expiracion }])
+            .insert([{ 
+                codigo: codigo, 
+                fecha_expiracion: expiracion,
+                creado_en: ahoraLocal // <- Actualizado al nombre exacto de tu columna
+            }])
             .select()
             .single();
 
@@ -42,16 +51,23 @@ class TestService {
     }
 
     async guardarRespuesta(codigo, preguntaId, respuesta) {
+        // --- CALCULAMOS LA HORA LOCAL PARA LAS RESPUESTAS ---
+        const ahora = new Date();
+        const ahoraLocal = new Date(ahora.getTime() - (4 * 60 * 60 * 1000));
+
         const { error } = await supabase
             .from('respuestas_pacientes')
             .upsert({ 
                 codigo_usuario: codigo.toUpperCase(), 
                 pregunta_id: preguntaId, 
-                respuesta: respuesta 
+                respuesta: respuesta,
+                respondido_en: ahoraLocal // <- Actualizado al nombre exacto de tu columna
             }, { onConflict: 'codigo_usuario,pregunta_id' });
 
-        if (error) throw error;
-        
+        if (error) {
+            console.error("🚨 ERROR REAL DE SUPABASE AL GUARDAR:", error);
+            throw error;
+        }
         // TODO: Aquí irá la lógica asíncrona para guardar en el historial clínico existente.
         return true;
     }
