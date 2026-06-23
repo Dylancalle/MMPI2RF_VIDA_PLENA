@@ -14,5 +14,5 @@ export const Alert = ({ tipo, mensaje }) => {
     fontWeight: 'bold'
   };
 
-  return <div style={estilos}>{esExito ? '✅' : '⚠️'} {mensaje}</div>;
+  return <div style={estilos}>{esExito ? 'COMPLETADO: ' : 'ALERTA: '} {mensaje}</div>;
 };
