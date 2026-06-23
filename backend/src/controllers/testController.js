@@ -12,7 +12,6 @@ const generarCodigo = async (req, res) => {
 
 const validarCodigo = async (req, res) => {
     const { codigo } = req.body;
-    console.log("--> Código recibido en backend:", `"${codigo}"`);
     if (!codigo) return res.status(400).json({ error: 'Código requerido' });
 
     try {
