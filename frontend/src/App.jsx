@@ -32,21 +32,18 @@ function App() {
   }, []);
 
   // 2. Efecto para el control de múltiples pestañas
+  // 2. Efecto para el control de múltiples pestañas (Optimizado para Demo)
   useEffect(() => {
     if (paso === 1) {
       const testEnUso = localStorage.getItem('testActivo');
-      const soyDueño = sessionStorage.getItem('soyDueñoTest') === 'true';
-
-      if (testEnUso === codigo && !soyDueño) {
-        // Alguien más (otra pestaña) ya está usando ESTE código
-        mostrarError("Este test ya está siendo respondido en otra pestaña.");
-        setPaso(0);
-      } else if (testEnUso && testEnUso !== codigo) {
-        // Alguien más (otra pestaña) está usando un código DIFERENTE
+      
+      if (testEnUso && testEnUso !== codigo) {
+        // Alguien más está usando un código DIFERENTE en esta PC
         mostrarError("Hay otro test abierto en esta computadora. Cierra las otras pestañas.");
         setPaso(0);
       } else {
-        // La vía está libre, o nosotros somos los dueños recargando la página. Reclamamos el test.
+        // La vía está libre, O estamos retomando nuestro PROPIO código tras un cierre.
+        // Reclamamos el test sin bloquearnos a nosotros mismos.
         localStorage.setItem('testActivo', codigo);
         sessionStorage.setItem('soyDueñoTest', 'true');
       }
